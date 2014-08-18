@@ -1,48 +1,47 @@
 require_relative 'file_operations.rb'
-class CreateClass
+
+class CreateClass	
 	include FileOperation
 	
 	def self.read_csv_file
 		puts @file_name
 	end
 
-	def self.create_class(class_name,*attributes)
-		c=Class.new do
-			attributes.each do |attributes|
-				define_method attributes.intern do
-					instance_variable_get("#{attributes}")
-				end
-
-				define_method "#{attributes}=".intern do |arg|
-					instance_variable_set("#{attributes}",arg)
-				end
-			end
+	def self.create_class(class_name)
+		klass= Object.const_set "#{class_name}",Class.new
+		@data[0].each  do |x|
+			x.gsub!(/\s/,'_')
+			x.downcase
 		end
-		#Object.const_set class_name, c
+		class_properties=@data[0]
+		eval("#{class_name}").class_eval do
+			attr_accessor *class_properties
+		end
+		object_counter = 0
+		@data.each do |elements|
+			if object_counter >=1
+				#element_counter = 0
+				Object.const_set "#{class_name}_object_#{object_counter}", eval("#{class_name}.new")
+					class_properties.zip(elements).each do |var,value|
+						puts Object.const_defined? "#{class_name}_object_#{object_counter}"
+						puts "#{var}.....#{value}......#{class_name}_object_#{object_counter}"
+						puts("#{class_name}_object_#{object_counter}.#{var}=value")
+						eval("#{class_name}_object_#{object_counter}.#{var}=value")
+					end
+				#end
+			end
+			object_counter+=1
+		end
 	end
 
 	def self.set_class
-		counter =0
-		object_id=0
-		file_name="#{@file_name}.csv"
-		f_name=@file_name.capitalize
-		f_name[f_name.size-1]=' '
-		data=CSV.read(file_name,"r")
-		data.each do |element|
-				if counter.eql?(0)
-					p data[0]
-					CreateClass.create_class(f_name,*element)
-					counter+=1
-				else
-					state[object_id]=f_name.new
-					state.attributes=element
-					p state.element
-					object_id+=1
-				end
-		end
+		@csv_file_name="#{@file_name}.csv"
+		class_name=@file_name.capitalize
+		class_name[class_name.size-1]=''
+		@data=CSV.read(@csv_file_name,"r")
+		CreateClass.create_class(class_name)
 	end
 end
-obj=CreateClass.new
 CreateClass.run_file
 CreateClass.read_csv_file
 CreateClass.set_class
