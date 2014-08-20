@@ -34,6 +34,7 @@ class CreateClass
 			end
 			object_counter+=1
 		end
+		self.insert_values class_name
 	end
 
 	def self.insert_values class_name
@@ -41,17 +42,19 @@ class CreateClass
 		@db = mongo_client.db("my_database")
 		collection_name=class_name.downcase
 		collection_name[collection_name.size]='s'
-		coll=@db.collection(collection_name)
+		@coll=@db.collection(collection_name)
 		puts "Collection name : #{collection_name}"
 		counter=0
 		@data.each do |elements|
-			if counter>=1
-				array=@clas_properties.zip(elements)
-				hash=Hash[*array.flatten]
-				coll.insert(hash)
-			end
+				if counter>=1
+					array=@clas_properties.zip(elements)
+					hash=Hash[*array.flatten]
+					p hash
+					@coll.insert(hash)
+				end
 			counter+=1
 		end
+		
 	end	
 
 	def self.set_class
