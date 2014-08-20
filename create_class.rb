@@ -25,7 +25,6 @@ class CreateClass
 		object_counter = 0
 		@data.each do |elements|
 			if object_counter >=1
-				#element_counter = 0
 				Object.const_set "#{class_name}_object_#{object_counter}", eval("#{class_name}.new")
 					class_properties.zip(elements).each do |var,value|
 						eval("#{class_name}_object_#{object_counter}.#{var}=value")
@@ -34,16 +33,26 @@ class CreateClass
 			end
 			object_counter+=1
 		end
-		self.insert_values class_name
 	end
 
-	def self.insert_values class_name
+	def self.insert_update_values class_name
 		mongo_client = Mongo::MongoClient.new("localhost",27017)
 		@db = mongo_client.db("my_database")
 		collection_name=class_name.downcase
 		collection_name[collection_name.size]='s'
 		@coll=@db.collection(collection_name)
 		puts "Collection name : #{collection_name}"
+		print "Please set Primary Key for collection :"
+		primary_key=gets.chomp
+		if @coll.count.eql?(0)
+			self.insert_values
+		else 
+			self.update_values primary_key
+		end
+	end	
+
+	def self.insert_values
+		p "here i m in insert_values"
 		counter=0
 		@data.each do |elements|
 				if counter>=1
@@ -54,8 +63,35 @@ class CreateClass
 				end
 			counter+=1
 		end
-		
-	end	
+	end
+
+	def self.update_values primary_key
+		counter=0
+		key_flag=0
+		@coll.find().each do |document|
+			doc_hash = document.to_hash
+			if doc_hash.key?(primary_key)
+				@data.each do |elements|
+					if counter>=1
+						array=@clas_properties.zip(elements)
+						hash=Hash[*array.flatten]
+						if hash[primary_key]==doc_hash[primary_key]
+							p hash 
+							@coll.update({primary_key => doc_hash[primary_key]},hash)
+							key_flag=1
+							@coll.save(counter)
+						end	
+					end
+					counter+=1
+				end
+			else
+				key_flag = 0
+			end
+		end
+		if key_flag==0
+			puts "Sorry Primary key is not present.Cant Update collection!"
+		end
+	end
 
 	def self.set_class
 		@csv_file_name="#{@file_name}.csv"
@@ -63,7 +99,7 @@ class CreateClass
 		class_name[class_name.size-1]=''
 		@data=CSV.read(@csv_file_name,"r")
 		CreateClass.create_class class_name
-		self.insert_values class_name
+		self.insert_update_values class_name
 	end
 end
 CreateClass.run_file

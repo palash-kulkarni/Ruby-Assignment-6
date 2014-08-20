@@ -13,10 +13,10 @@ module FileOperation
     end
 
     def run_file
-      @file_name=get_file_name
-      file_parse=File.open("#{@file_name}.html","r")
+      @file_name = get_file_name
+      file_parse = File.open("#{@file_name}.html","r")
       if file_parse
-        csv=CSV.open("#{@file_name}.csv","w")
+        csv = CSV.open("#{@file_name}.csv","w")
         if csv
           csv.truncate(0)
         end
