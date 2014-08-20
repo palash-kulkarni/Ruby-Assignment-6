@@ -16,7 +16,7 @@ module FileOperation
       @file_name=get_file_name
       file_parse=File.open("#{@file_name}.html","r")
       if file_parse
-        csv=CSV.open("states.csv","w")
+        csv=CSV.open("#{@file_name}.csv","w")
         if csv
           csv.truncate(0)
         end
@@ -37,7 +37,7 @@ module FileOperation
     
     def write_record_in_csv(content)
       data=Array.new
-      CSV.open("states.csv","a") do |csv|
+      CSV.open("#{@file_name}.csv","a") do |csv|
         content.each do |counter|
           counter.each do |element|
             data << element
