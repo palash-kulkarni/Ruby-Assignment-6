@@ -1,3 +1,4 @@
+#!/usr/bin/ruby
 require_relative 'file_operations.rb'
 
 require 'mongo'
@@ -13,7 +14,7 @@ class CreateClass
 		Object.const_set "#{class_name}",Class.new
 		@data[0].each  do |x|
 			x.gsub!(/\s/,'_')
-			x.downcase
+			x.downcase!
 		end
 		
 		class_properties=@data[0]
@@ -52,7 +53,6 @@ class CreateClass
 	end	
 
 	def self.insert_values
-		p "here i m in insert_values"
 		counter=0
 		@data.each do |elements|
 				if counter>=1
@@ -79,7 +79,6 @@ class CreateClass
 							p hash 
 							@coll.update({primary_key => doc_hash[primary_key]},hash)
 							key_flag=1
-							@coll.save(counter)
 						end	
 					end
 					counter+=1
