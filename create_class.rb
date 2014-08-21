@@ -7,7 +7,7 @@ class CreateClass
 	include FileOperation
 	
 	def self.read_csv_file
-		puts "Reading #{@file_name}.csv file...."
+		puts "Reading #{@file_name}.csv file..."
 	end
 
 	def self.create_class(class_name)
